@@ -1,0 +1,31 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: hub-gitops
+placementBindingDefaults:
+  name: hub-gitops
+policies:
+  - configurationPolicyAnnotations:
+      policy.open-cluster-management.io/disable-templates: "true"
+    manifests:
+    - path: managed-clusters/prime
+    name: hub-gitops-cluster-prime
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  complianceType: musthave
+  controls:
+    - CM-2 Baseline Configuration
+  namespace: uc2-openshift-gitops
+  remediationAction: enforce
+  severity: high
+  standards:
+    - NIST SP 800-53
+policySets:
+  - description: Specific Configurations for Cluster "prime"
+    name: hub-gitops
+    placement:
+      placementPath: hub-placement.yaml
+    policies:
+      - hub-gitops-cluster-prime
