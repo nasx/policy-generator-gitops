@@ -1,0 +1,27 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmGlobals:
+  chartHome: ../../../charts
+helmCharts:
+  - name: machineset
+    releaseName: machineset-prime
+    valuesInline:
+      machineSet:
+        nameSuffix: test1
+        replicas: 2
+        role: worker
+        vmware:
+          diskGiB: 120
+          memoryMiB: 24576
+          networkName: aggr-25g-100-lab
+          numCPUs: 8
+          numCoresPerSocket: 8
+          region: generated-region
+          workspace:
+            datacenter: UC2
+            datastore: /UC2/datastore/r440-1-nvme-local
+            folder: /UC2/vm/openshift/ipi/prime
+            resourcepool: /UC2/host/r440s//Resources
+            server: vsphere.lab.uc2.io
+          zone: generated-zone

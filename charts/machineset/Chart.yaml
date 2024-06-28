@@ -1,0 +1,5 @@
+apiVersion: v2
+description: Deploy MachineSet on OpenShift
+name: machineset
+type: application
+version: 0.1.0

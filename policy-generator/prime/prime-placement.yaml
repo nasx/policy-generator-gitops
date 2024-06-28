@@ -1,0 +1,20 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: prime
+  namespace: open-cluster-management-global-set
+spec:
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: name
+              operator: In
+              values:
+                - prime
+  tolerations:
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists

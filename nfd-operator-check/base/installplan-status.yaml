@@ -1,0 +1,10 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: InstallPlan
+metadata:
+  name: '{{ (lookup "operators.coreos.com/v1alpha1" "Subscription" "openshift-nfd" "nfd-operator").status.installPlanRef.name }}'
+  namespace: openshift-nfd
+status:
+  conditions:
+    - status: "True"
+      type: Installed

@@ -1,0 +1,51 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: all-openshift-policies
+placementBindingDefaults:
+  name: all-openshift-policies
+policies:
+  - manifests:
+      - path: nfd-operator/
+    name: operator-nfd
+  - consolidateManifests: false
+    dependencies:
+      - name: operator-nfd
+    manifests:
+      - path: nfd-operator-check/
+    name: operator-nfd-check
+    remediationAction: inform
+  - dependencies:
+      - name: operator-nfd-check
+    manifests:
+      - path: nfd-operator-cr/
+    name: operator-nfd-cr
+  - consolidateManifests: false
+    dependencies:
+      - name: operator-nfd-cr
+    manifests:
+      - path: nfd-operator-cr-check/
+    name: operator-nfd-cr-check
+    remediationAction: inform
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  complianceType: musthave
+  controls:
+    - CM-2 Baseline Configuration
+  namespace: open-cluster-management-global-set
+  remediationAction: enforce
+  severity: high
+  standards:
+    - NIST SP 800-53
+policySets:
+  - description: Specific Configurations for All OpenShift Clusters
+    name: all-openshift-clusters
+    placement:
+      placementPath: all-openshift-placement.yaml
+    policies:
+      - operator-nfd
+      - operator-nfd-check
+      - operator-nfd-cr
+      - operator-nfd-cr-check

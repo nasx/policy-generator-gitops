@@ -1,0 +1,29 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: prime-policies
+placementBindingDefaults:
+  name: prime-policies
+policies:
+  - manifests:
+    - path: chart-machineset/
+    name: prime-machineset-test1
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  complianceType: musthave
+  controls:
+    - CM-2 Baseline Configuration
+  namespace: open-cluster-management-global-set
+  remediationAction: enforce
+  severity: high
+  standards:
+    - NIST SP 800-53
+policySets:
+  - description: Specific Configurations for Cluster "prime"
+    name: ps-prime
+    placement:
+      placementPath: prime-placement.yaml
+    policies:
+      - prime-machineset-test1
