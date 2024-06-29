@@ -15,6 +15,7 @@ policyDefaults:
   complianceType: musthave
   controls:
     - CM-2 Baseline Configuration
+  copyPolicyMetadata: false
   namespace: open-cluster-management-global-set
   remediationAction: enforce
   severity: high

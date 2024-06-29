@@ -17,6 +17,7 @@ policyDefaults:
   complianceType: musthave
   controls:
     - CM-2 Baseline Configuration
+  copyPolicyMetadata: false
   namespace: uc2-openshift-gitops
   remediationAction: enforce
   severity: high
