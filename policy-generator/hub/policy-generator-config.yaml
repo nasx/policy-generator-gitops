@@ -6,15 +6,18 @@ metadata:
 placementBindingDefaults:
   name: hub-gitops
 policies:
-  - configurationPolicyAnnotations:
-      policy.open-cluster-management.io/disable-templates: "true"
-    manifests:
-    - path: managed-clusters/prime
+  - manifests:
+      - path: managed-clusters/prime
     name: hub-gitops-cluster-prime
+  - manifests:
+      - path: groups/openshift
+    name: hub-gitops-group-openshift
 policyDefaults:
   categories:
     - CM Configuration Management
   complianceType: musthave
+  configurationPolicyAnnotations:
+    policy.open-cluster-management.io/disable-templates: 'true'
   controls:
     - CM-2 Baseline Configuration
   copyPolicyMetadata: false
@@ -30,3 +33,4 @@ policySets:
       placementPath: hub-placement.yaml
     policies:
       - hub-gitops-cluster-prime
+      - hub-gitops-group-openshift
