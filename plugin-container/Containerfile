@@ -1,2 +1,13 @@
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest
+FROM registry.access.redhat.com/ubi9/ubi:latest AS ubi-micro-build
+
+RUN mkdir -p /mnt/rootfs
+RUN yum install --installroot /mnt/rootfs coreutils-single glibc-minimal-langpack grep curl --releasever 9 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
+RUN rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.* /mnt/rootfs/usr/share/zoneinfo
+
+FROM scratch
+
+COPY --from=ubi-micro-build /mnt/rootfs/ /
+COPY --from=ubi-micro-build /etc/yum.repos.d/ubi.repo /etc/yum.repos.d/ubi.repo
 COPY ./PolicyGenerator /PolicyGenerator
+
+CMD /bin/sh
