@@ -1,0 +1,38 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: hub-gitops-bootstrap
+  namespace: uc2-openshift-gitops
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/nasx/policy-generator-gitops.git
+        revision: HEAD
+        directories:
+          - path: policy-generator/openshift
+          - path: policy-generator/prime
+  template:
+    metadata:
+      annotations:
+        argocd.argoproj.io/compare-options: IgnoreExtraneous
+      labels:
+        velero.io/exclude-from-backup: 'true'
+      name: 'hub-gitops-{{.path.basename}}'
+    spec:
+      destination:
+        namespace: uc2-openshift-gitops
+        server: https://kubernetes.default.svc
+      project: default
+      sources:
+        - path: '{{.path.path}}'
+          repoURL: https://github.com/nasx/policy-generator-gitops.git
+          targetRevision: HEAD
+      syncPolicy:
+        automated:
+          prune: false
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false

@@ -7,11 +7,8 @@ placementBindingDefaults:
   name: hub-gitops
 policies:
   - manifests:
-      - path: managed-clusters/prime
-    name: hub-gitops-cluster-prime
-  - manifests:
-      - path: groups/openshift
-    name: hub-gitops-group-openshift
+      - path: manifests/applicationset.yaml
+    name: hub-gitops-bootstrap
 policyDefaults:
   categories:
     - CM Configuration Management
@@ -27,10 +24,9 @@ policyDefaults:
   standards:
     - NIST SP 800-53
 policySets:
-  - description: Specific Configurations for Cluster "prime"
+  - description: Policy GitOps
     name: hub-gitops
     placement:
       placementPath: hub-placement.yaml
     policies:
-      - hub-gitops-cluster-prime
-      - hub-gitops-group-openshift
+      - hub-gitops-bootstrap
