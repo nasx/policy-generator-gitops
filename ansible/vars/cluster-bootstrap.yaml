@@ -1,0 +1,28 @@
+---
+conditions:
+  - api_version: operator.open-cluster-management.io/v1
+    kind: MultiClusterHub
+    name: multiclusterhub
+    namespace: open-cluster-management
+    status: 'True'
+    type: Complete
+manifests:
+  kustomize:
+    - path: ../acm/base
+namespaces:
+  - name: aap
+  - labels:
+      openshift.io/cluster-monitoring: 'true'
+    name: open-cluster-management
+operators:
+  - channel: release-2.10
+    destinationNamespace: open-cluster-management
+    installPlanApproval: Manual
+    name: advanced-cluster-management
+    operatorgroup:
+      clusterScope: false
+      create: true
+      name: open-cluster-management-operator-group
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    startingCSV: advanced-cluster-management.v2.10.3

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+{% if item.labels is defined %}
+  labels:
+    {{- item.labels | to_yaml | indent(4, true) }}
+{% endif %}
+  name: {{ item.name }}
+spec: {}

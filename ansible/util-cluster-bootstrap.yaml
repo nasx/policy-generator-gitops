@@ -1,0 +1,6 @@
+- name: Bootstrap Cluster
+  become: false
+  gather_facts: false
+  hosts: localhost
+  roles:
+    - role: cluster-bootstrap

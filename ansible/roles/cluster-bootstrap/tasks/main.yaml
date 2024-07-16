@@ -1,0 +1,95 @@
+- name: Create Namespaces
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: templates/namespace.yaml.j2
+  loop: "{{ namespaces }}"
+
+- name: Create Secrets
+  kubernetes.core.k8s:
+    state: present
+    template: templates/secret.yaml.j2
+  loop: "{{ secrets }}"
+
+- name: Deploy Operators
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: templates/operator.yaml.j2
+  loop: "{{ operators }}"
+
+- name: Wait for Subscription Status Update
+  kubernetes.core.k8s_info:
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    name: "{{ item.name }}"
+    namespace: "{{ item.destinationNamespace }}"
+  delay: 10
+  loop: "{{ operators }}"
+  register: subscription_results
+  retries: 60
+  until:
+    - subscription_results.resources is defined
+    - subscription_results.resources[0].status is defined
+    - subscription_results.resources[0].status.state is defined
+    - subscription_results.resources[0].status.installplan is defined
+    - subscription_results.resources[0].status.installplan.name is defined
+
+- name: Debug subscription_results
+  ansible.builtin.debug:
+    var: subscription_results
+
+- name: Approve Install Plans Requiring Manual Approval
+  kubernetes.core.k8s:
+    api_version: operators.coreos.com/v1alpha1
+    definition:
+      spec:
+        approved: true
+    kind: InstallPlan
+    name: "{{ item.resources[0].status.installplan.name }}"
+    namespace: "{{ item.item.destinationNamespace }}"
+    state: patched
+  loop: "{{ subscription_results.results }}"
+  register: approved_installplan_results
+  when:
+    - item.resources[0].status.installPlanGeneration == 1
+    - item.resources[0].status.state == "UpgradePending"
+
+- name: Wait for ClusterServiceVersion
+  kubernetes.core.k8s_info:
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    name: "{{ item.startingCSV }}"
+    namespace: "{{ item.destinationNamespace }}"
+  delay: 10
+  loop: "{{ operators }}"
+  register: csv_results
+  retries: 60
+  until:
+    - csv_results.resources is defined
+    - csv_results.resources[0] is defined
+    - csv_results.resources[0].status is defined
+    - csv_results.resources[0].status.phase is defined
+    - csv_results.resources[0].status.phase == "Succeeded"
+  when:
+    - item.installPlanApproval == "Manual"
+
+- name: Apply Manifests
+  kubernetes.core.k8s:
+    definition: "{{ lookup('kubernetes.core.kustomize', dir=item.path) }}"
+    state: present
+  loop: "{{ manifests.kustomize }}"
+
+- name: Wait for Conditions
+  kubernetes.core.k8s_info:
+    api_version: "{{ item.api_version }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name }}"
+    namespace: "{{ item.namespace }}"
+    wait: true
+    wait_condition:
+      status: "{{ item.status }}"
+      type: "{{ item.type }}"
+    wait_sleep: "{{ item.wait_sleep | default(10) | int }}"
+    wait_timeout: "{{ item.wait_timeout | default(600) | int }}"
+  loop: "{{ conditions }}"

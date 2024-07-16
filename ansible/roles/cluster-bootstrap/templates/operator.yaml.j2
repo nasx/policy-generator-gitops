@@ -1,0 +1,30 @@
+{% if (item.operatorgroup.create is defined) and (item.operatorgroup.create is sameas true) %}
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ item.operatorgroup.name }}
+  namespace: {{ item.destinationNamespace }}
+{% if (item.operatorgroup.clusterScope is defined) and (item.operatorgroup.clusterScope is sameas true) %}
+spec: {}
+{% else %}
+spec:
+  targetNamespaces:
+    - {{ item.destinationNamespace }}
+{% endif %}
+{% endif %}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ item.name }}
+  namespace: {{ item.destinationNamespace }}
+spec:
+  channel: {{ item.channel }}
+  installPlanApproval: {{ item.installPlanApproval }}
+  name: {{ item.name }}
+  source: {{ item.source }}
+  sourceNamespace: {{ item.sourceNamespace }}
+{% if item.startingCSV is defined %}
+  startingCSV: {{ item.startingCSV }}
+{% endif %}
