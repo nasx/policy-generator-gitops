@@ -1,0 +1,44 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: hub-openshift-gitops
+placementBindingDefaults:
+  name: hub-gitops
+policies:
+  - manifests:
+      - path: operator/base
+    name: hub-openshift-gitops-operator
+  - consolidateManifests: false
+    dependencies:
+      - name: hub-openshift-gitops-operator
+    manifests:
+      - path: operator-installplan/manifests/installplan.yaml
+    name: hub-openshift-gitops-installplan
+  - consolidateManifests: false
+    dependencies:
+      - name: hub-openshift-gitops-installplan
+    manifests:
+      - path: operator-installplan-check/manifests/installplan-check.yaml
+    name: hub-openshift-gitops-installplan-check
+    remediationAction: inform
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  complianceType: musthave
+  controls:
+    - CM-2 Baseline Configuration
+  namespace: hub-gitops
+  remediationAction: enforce
+  severity: high
+  standards:
+    - NIST SP 800-53
+policySets:
+  - description: "Hub Deployment of OpenShift GitOps/Argo CD"
+    name: hub-openshift-gitops
+    placement:
+      placementPath: hub-placement.yaml
+    policies:
+      - hub-openshift-gitops-operator
+      - hub-openshift-gitops-installplan
+      - hub-openshift-gitops-installplan-check

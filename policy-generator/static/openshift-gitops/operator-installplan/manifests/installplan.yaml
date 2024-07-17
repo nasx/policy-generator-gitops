@@ -1,0 +1,23 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: openshift-gitops-installplan
+spec:
+  remediationAction: enforce
+  severity: high
+  object-templates-raw: |
+    {{- $subscription := (lookup "operators.coreos.com/v1alpha1" "Subscription" "openshift-gitops" "openshift-gitops-operator") -}}
+    {{- $installplan := (lookup "operators.coreos.com/v1alpha1" "InstallPlan" "openshift-gitops" $subscription.status.installplan.name) -}}
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: operators.coreos.com/v1alpha1
+        kind: InstallPlan
+        metadata:
+          name: {{ $subscription.status.installplan.name }}
+          namespace: openshift-gitops
+        spec:
+          approval: {{ $installplan.spec.approval }}
+        {{- if eq $installplan.spec.approval "Manual" }}
+          approved: {{ mustHas $subscription.spec.startingCSV $installplan.spec.clusterServiceVersionNames }}
+        {{- end }}
