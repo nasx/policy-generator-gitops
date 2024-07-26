@@ -1,0 +1,38 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: all-openshift-aro-policies
+placementBindingDefaults:
+  name: all-openshift-aro-policies
+policies:
+  - manifests:
+      - path: aro-infra-machineset-config/
+    name: aro-infra-machineset-config
+    remediationAction: enforce
+  - consolidateManifests: false
+    dependencies:
+      - name: aro-infra-machineset-config
+    manifests:
+      - path: aro-infra-machineset/
+    name: aro-infra-machineset
+    remediationAction: enforce
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  complianceType: musthave
+  controls:
+    - CM-2 Baseline Configuration
+  namespace: open-cluster-management-global-set
+  remediationAction: enforce
+  severity: high
+  standards:
+    - NIST SP 800-53
+policySets:
+  - description: Specific Configurations for All Azure Red Hat OpenShift (ARO) Clusters
+    name: all-openshift-aro-clusters
+    placement:
+      placementPath: all-openshift-aro-placement.yaml
+    policies:
+      - aro-infra-machineset-config
+      - aro-infra-machineset

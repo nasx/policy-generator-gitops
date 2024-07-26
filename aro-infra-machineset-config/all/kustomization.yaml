@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+configMapGenerator:
+  - literals:
+      - disk_size_gb=128
+      - location=eastus
+      - replicas_per_zone=1
+      - sku=aro_414
+      - storage_account_type=Premium_LRS
+      - subnet=uc2-tailscale-aro-compute
+      - version=414.92.20240213
+      - vm_type=Standard_D8s_v3
+      - vnet_name=tailscale
+      - zones=1,2,3
+    name: aro-infra-machineset
+generatorOptions:
+  disableNameSuffixHash: true
+namespace: openshift-machine-api

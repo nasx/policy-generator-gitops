@@ -1,0 +1,76 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: aro-infra-machineset
+spec:
+  remediationAction: enforce
+  severity: low
+  object-templates-raw: |
+    {{- $aro_infra_machineset := (lookup "v1" "ConfigMap" "openshift-machine-api" "aro-infra-machineset").data }}
+    {{- $infrastructure_status := (lookup "config.openshift.io/v1" "Infrastructure" "" "cluster").status }}
+    {{- $zones := (printf "[%s]" $aro_infra_machineset.zones) | fromJson }}
+    {{- range $zone := $zones }}
+    {{- $machineset_name := (printf "%s-infra-%s%d" $infrastructure_status.infrastructureName $aro_infra_machineset.location ($zone | toInt)) }}
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: machine.openshift.io/v1beta1
+        kind: MachineSet
+        metadata:
+          labels:
+            machine.openshift.io/cluster-api-cluster: {{ $infrastructure_status.infrastructureName }}
+            machine.openshift.io/cluster-api-machine-role: infra
+            machine.openshift.io/cluster-api-machine-type: infra
+          name: {{ $machineset_name }}
+          namespace: openshift-machine-api
+        spec:
+          replicas: {{ $aro_infra_machineset.replicas_per_zone | atoi }}
+          selector:
+            matchLabels:
+              machine.openshift.io/cluster-api-cluster: {{ $infrastructure_status.infrastructureName }}
+              machine.openshift.io/cluster-api-machineset: {{ $machineset_name }}
+          template:
+            metadata:
+              labels:
+                machine.openshift.io/cluster-api-cluster: {{ $infrastructure_status.infrastructureName }}
+                machine.openshift.io/cluster-api-machine-role: infra
+                machine.openshift.io/cluster-api-machine-type: infra
+                machine.openshift.io/cluster-api-machineset: {{ $machineset_name }}
+            spec:
+              metadata:
+                labels:
+                  machine.openshift.io/cluster-api-machineset: {{ $machineset_name }}
+                  node-role.kubernetes.io/infra: ''
+              providerSpec:
+                value:
+                  apiVersion: azureproviderconfig.openshift.io/v1beta1
+                  credentialsSecret:
+                    name: azure-cloud-credentials
+                    namespace: openshift-machine-api
+                  image: 
+                    offer: aro4
+                    publisher: azureopenshift
+                    sku: {{ $aro_infra_machineset.sku }}
+                    version: {{ $aro_infra_machineset.version }}
+                  kind: AzureMachineProviderSpec
+                  location: {{ $aro_infra_machineset.location }}
+                  natRule: null
+                  networkResourceGroup: {{ $infrastructure_status.platformStatus.azure.networkResourceGroupName }}
+                  osDisk:
+                    diskSizeGB: {{ $aro_infra_machineset.disk_size_gb | atoi }}
+                    managedDisk:
+                      storageAccountType: {{ $aro_infra_machineset.storage_account_type }}
+                    osType: Linux
+                  publicIP: false
+                  resourceGroup: {{ $infrastructure_status.platformStatus.azure.resourceGroupName }}
+                  tags:
+                    node_role: infra
+                  subnet: {{ $aro_infra_machineset.subnet }}
+                  userDataSecret:
+                    name: worker-user-data 
+                  vmSize: {{ $aro_infra_machineset.vm_type }}
+                  vnet: {{ $aro_infra_machineset.vnet_name }}
+                  zone: "{{ $zone }}"
+              taints: 
+              - key: node-role.kubernetes.io/infra
+                effect: NoSchedule
+    {{- end }}
