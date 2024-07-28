@@ -17,6 +17,17 @@ policies:
       - path: aro-infra-machineset/
     name: aro-infra-machineset
     remediationAction: enforce
+  - consolidateManifests: false
+    dependencies:
+      - name: aro-infra-machineset
+    manifests:
+      - path: aro-infra-machineset-check/
+    name: aro-infra-machineset-check
+  - dependencies:
+      - name: aro-infra-machineset-check
+    manifests:
+      - path: aro-default-ingress-controller/
+    name: aro-default-ingress-ctlr
 policyDefaults:
   categories:
     - CM Configuration Management
@@ -36,3 +47,5 @@ policySets:
     policies:
       - aro-infra-machineset-config
       - aro-infra-machineset
+      - aro-infra-machineset-check
+      - aro-default-ingress-ctlr

@@ -1,0 +1,26 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: aro-infra-machineset-check
+spec:
+  remediationAction: inform
+  severity: high
+  object-templates-raw: |
+    {{- $aro_infra_machineset := (lookup "v1" "ConfigMap" "openshift-machine-api" "aro-infra-machineset").data }}
+    {{- $infrastructure_status := (lookup "config.openshift.io/v1" "Infrastructure" "" "cluster").status }}
+    {{- $zones := (printf "[%s]" $aro_infra_machineset.zones) | fromJson }}
+    {{- range $zone := $zones }}
+    {{- $machineset_name := (printf "%s-infra-%s%d" $infrastructure_status.infrastructureName $aro_infra_machineset.location ($zone | toInt)) }}
+    - complianceType: musthave
+      objectDefinition:
+        apiVersion: machine.openshift.io/v1beta1
+        kind: MachineSet
+        metadata:
+          name: {{ $machineset_name }}
+          namespace: openshift-machine-api
+        status:
+          availableReplicas: {{ $aro_infra_machineset.replicas_per_zone | atoi }}
+          readyReplicas: {{ $aro_infra_machineset.replicas_per_zone | atoi }}
+          replicas: {{ $aro_infra_machineset.replicas_per_zone | atoi }}
+    {{- end }}
