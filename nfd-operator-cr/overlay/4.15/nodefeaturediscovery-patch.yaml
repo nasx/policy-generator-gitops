@@ -1,4 +1,6 @@
 ---
-- op: replace
-  path: /spec/operand/image
-  value: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.15
+- op: add
+  path: /spec/operand
+  value:
+    image: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v4.15
+    imagePullPolicy: Always

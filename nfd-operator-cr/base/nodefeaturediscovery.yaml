@@ -6,8 +6,8 @@ metadata:
   namespace: openshift-nfd
 spec:
   operand:
-    image: registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:latest
-    imagePullPolicy: Always
+    image: registry.redhat.io/openshift4/ose-node-feature-discovery:v{{ fromClusterClaim "openshiftversion-major-minor" }}
+    imagePullPolicy: IfNotPresent
   workerConfig:
     configData: |
       core:
