@@ -1,0 +1,142 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: ConfigurationPolicy
+metadata:
+  name: cluster-monitoring-config
+spec:
+  remediationAction: enforce
+  severity: low
+  object-templates-raw: |
+    {{- $policy_config := (lookup "v1" "ConfigMap" "openshift-monitoring" "openshift-monitoring-policy-config").data }}
+    {{- $hub_info := (index (lookup "v1" "Secret" "open-cluster-management-addon-observability" "hub-info-secret").data "hub-info.yaml") | base64dec }}
+    {{- $alertmanager_host := "" }}
+    {{- range $line := (split "\n" $hub_info) }}
+      {{- if (contains "alertmanager-endpoint" $line) }}
+        {{- $alertmanager_host = ((split " " $line)._1 | replace "https://" "") }}
+        {{- break }}
+      {{- end }}
+    {{- end }}
+    - complianceType: musthave
+      recordDiff: InStatus
+      objectDefinition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: cluster-monitoring-config
+          namespace: openshift-monitoring
+        data:
+          config.yaml: |
+            alertmanagerMain:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+              {{- if eq $policy_config.alertmanager_enable_vct "true" }}
+              volumeClaimTemplate:
+                spec:
+                  resources:
+                    requests:
+                      storage: {{ $policy_config.alertmanager_storage_size }}
+                  storageClassName: {{ $policy_config.alertmanager_storageclass }}
+                  volumeMode: Filesystem
+              {{- end }}
+            grafana:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            k8sPrometheusAdapter:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            kubeStateMetrics:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            openshiftStateMetrics:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            prometheusK8s:
+              additionalAlertmanagerConfigs:
+              - apiVersion: v2
+                bearerToken:
+                  key: token
+                  name: observability-alertmanager-accessor
+                scheme: https
+                staticConfigs:
+                - {{ $alertmanager_host }}
+                tlsConfig:
+                  ca:
+                    key: service-ca.crt
+                    name: hub-alertmanager-router-ca
+                  insecureSkipVerify: false
+              externalLabels:
+                managed_cluster: {{ fromClusterClaim "id.openshift.io" }}
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+              {{- if eq $policy_config.prometheus_enable_vct "true" }}
+              volumeClaimTemplate:
+                spec:
+                  resources:
+                    requests:
+                      storage: {{ $policy_config.prometheus_storage_size }}
+                  storageClassName: {{ $policy_config.prometheus_storageclass }}
+                  volumeMode: Filesystem
+              {{- end }}
+            prometheusOperator:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            telemeterClient:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}
+            thanosQuerier:
+              {{- if eq $policy_config.infra_nodes "true" }}
+              nodeSelector:
+                node-role.kubernetes.io/infra: ""
+              tolerations:
+              - effect: NoSchedule
+                key: node-role.kubernetes.io/infra
+                value: reserved
+              {{- end }}

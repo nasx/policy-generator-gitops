@@ -28,6 +28,22 @@ policies:
     manifests:
       - path: aro-default-ingress-controller/
     name: aro-default-ingress-ctlr
+  - dependencies:
+      - name: aro-infra-machineset-check
+    manifests:
+      - path: openshift-monitoring-config
+    name: openshift-monitoring-config
+  - consolidateManifests: false
+    dependencies:
+      - name: openshift-monitoring-config
+    manifests:
+      - path: openshift-monitoring
+    name: openshift-monitoring
+  - dependencies:
+      - name: aro-infra-machineset-check
+    manifests:
+      - path: aro-image-registry-config/
+    name: aro-image-registry-config
 policyDefaults:
   categories:
     - CM Configuration Management
@@ -49,3 +65,6 @@ policySets:
       - aro-infra-machineset
       - aro-infra-machineset-check
       - aro-default-ingress-ctlr
+      - openshift-monitoring-config
+      - openshift-monitoring
+      - aro-image-registry-config

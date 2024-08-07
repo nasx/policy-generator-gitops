@@ -1,3 +1,4 @@
+---
 apiVersion: policy.open-cluster-management.io/v1
 kind: ConfigurationPolicy
 metadata:
@@ -71,6 +72,7 @@ spec:
                   vnet: {{ $aro_infra_machineset.vnet_name }}
                   zone: "{{ $zone }}"
               taints: 
-              - key: node-role.kubernetes.io/infra
-                effect: NoSchedule
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/infra
+                  value: reserved
     {{- end }}
