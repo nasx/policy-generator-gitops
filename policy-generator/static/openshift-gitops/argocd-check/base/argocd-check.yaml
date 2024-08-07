@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: argocd
+  namespace: openshift-gitops
+status:
+  applicationController: Running
+  applicationSetController: Running
+  phase: Available
+  redis: Running
+  repo: Running
+  server: Running
+  sso: Running

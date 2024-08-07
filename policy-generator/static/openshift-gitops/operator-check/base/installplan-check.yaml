@@ -1,0 +1,10 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: InstallPlan
+metadata:
+  name: '{{ (lookup "operators.coreos.com/v1alpha1" "Subscription" "openshift-gitops" "openshift-gitops-operator").status.installPlanRef.name }}'
+  namespace: openshift-gitops
+status:
+  conditions:
+    - status: "True"
+      type: Installed

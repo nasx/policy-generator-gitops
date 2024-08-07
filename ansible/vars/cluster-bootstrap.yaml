@@ -6,18 +6,24 @@ conditions:
     namespace: open-cluster-management
     status: 'True'
     type: Complete
+  - api_version: cluster.open-cluster-management.io/v1beta2
+    kind: ManagedClusterSetBinding
+    name: global
+    namespace: hub-gitops
+    status: 'True'
+    type: Bound
 manifests:
   kustomize:
-    - path: ../acm/base
+    - path: ../acm/hub/base
 namespaces:
-  - name: aap
+  - name: hub-gitops
   - labels:
       openshift.io/cluster-monitoring: 'true'
     name: open-cluster-management
 operators:
   - channel: release-2.10
     destinationNamespace: open-cluster-management
-    installPlanApproval: Manual
+    installPlanApproval: Automatic
     name: advanced-cluster-management
     operatorgroup:
       clusterScope: false
@@ -25,4 +31,3 @@ operators:
       name: open-cluster-management-operator-group
     source: redhat-operators
     sourceNamespace: openshift-marketplace
-    startingCSV: advanced-cluster-management.v2.10.3

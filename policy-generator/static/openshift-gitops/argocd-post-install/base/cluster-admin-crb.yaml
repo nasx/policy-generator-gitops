@@ -1,0 +1,19 @@
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: openshift-gitops-argocd-cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: '{{ (lookup "apps/v1" "StatefulSet" "openshift-gitops" "argocd-application-controller").spec.template.spec.serviceAccount }}'
+    namespace: openshift-gitops
+  - kind: ServiceAccount
+    name: '{{ (lookup "apps/v1" "Deployment" "openshift-gitops" "argocd-applicationset-controller").spec.template.spec.serviceAccount }}'
+    namespace: openshift-gitops
+  - kind: ServiceAccount
+    name: '{{ (lookup "apps/v1" "Deployment" "openshift-gitops" "argocd-server").spec.template.spec.serviceAccount }}'
+    namespace: openshift-gitops

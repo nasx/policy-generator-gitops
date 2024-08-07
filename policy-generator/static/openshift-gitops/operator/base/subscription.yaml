@@ -4,9 +4,14 @@ metadata:
   name: openshift-gitops-operator
   namespace: openshift-gitops
 spec:
-  channel: gitops-1.13
-  installPlanApproval: Manual
+  config:
+    env:
+      - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+        value: openshift-gitops
+      - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
+        value: 'true'
+  channel: latest
+  installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: openshift-gitops-operator.v1.13.0

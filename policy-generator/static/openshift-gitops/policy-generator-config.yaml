@@ -13,15 +13,26 @@ policies:
     dependencies:
       - name: hub-openshift-gitops-operator
     manifests:
-      - path: operator-installplan/manifests/installplan.yaml
-    name: hub-openshift-gitops-installplan
+      - path: operator-check/base
+    name: hub-openshift-gitops-operator-check
+    remediationAction: inform
+  - dependencies:
+      - name: hub-openshift-gitops-operator-check
+    manifests:
+      - path: argocd/base
+    name: hub-openshift-gitops-argocd
   - consolidateManifests: false
     dependencies:
-      - name: hub-openshift-gitops-installplan
+      - name: hub-openshift-gitops-argocd
     manifests:
-      - path: operator-installplan-check/manifests/installplan-check.yaml
-    name: hub-openshift-gitops-installplan-check
+      - path: argocd-check/base
+    name: hub-openshift-gitops-argocd-check
     remediationAction: inform
+  - dependencies:
+      - name: hub-openshift-gitops-argocd-check
+    manifests:
+      - path: argocd-post-install/base
+    name: hub-openshift-gitops-argocd-post-install
 policyDefaults:
   categories:
     - CM Configuration Management
@@ -40,5 +51,7 @@ policySets:
       placementPath: hub-placement.yaml
     policies:
       - hub-openshift-gitops-operator
-      - hub-openshift-gitops-installplan
-      - hub-openshift-gitops-installplan-check
+      - hub-openshift-gitops-operator-check
+      - hub-openshift-gitops-argocd
+      - hub-openshift-gitops-argocd-check
+      - hub-openshift-gitops-argocd-post-install

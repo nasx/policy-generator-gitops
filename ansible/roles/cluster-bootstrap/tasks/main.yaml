@@ -74,6 +74,15 @@
   when:
     - item.installPlanApproval == "Manual"
 
+- name: Deploy Sealed Secrets Controller
+  ansible.builtin.include_role:
+    name: sealed-secrets
+  when:
+    - sealed_secrets_keypair_crt is defined
+    - sealed_secrets_keypair_key is defined
+    - sealed_secrets_keypair_name is defined
+    - sealed_secrets_namespace is defined
+
 - name: Apply Manifests
   kubernetes.core.k8s:
     definition: "{{ lookup('kubernetes.core.kustomize', dir=item.path) }}"
