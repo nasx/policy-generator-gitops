@@ -1,0 +1,56 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - kyverno-reports-controller-deployment.yaml
+  - kyverno-reports-controller-core-cr.yaml
+  - kyverno-svc-service.yaml
+  - kyverno-reports-controller-crb.yaml
+  - kyverno-cleanup-update-requests-cronjob.yaml
+  - kyverno-rbac-view-updaterequests-cr.yaml
+  - kyverno-cleanup-admission-reports-cronjob.yaml
+  - kyverno-background-controller-deployment.yaml
+  - kyverno-admission-controller-crb.yaml
+  - kyverno-rbac-admin-policyreports-cr.yaml
+  - kyverno-background-controller-metrics-service.yaml
+  - kyverno-rbac-view-reports-cr.yaml
+  - kyverno-admission-controller-cr.yaml
+  - kyverno-admission-controller-rb.yaml
+  - kyverno-cleanup-controller-service.yaml
+  - kyverno-rbac-admin-updaterequests-cr.yaml
+  - kyverno-metrics-cm.yaml
+  - kyverno-admission-controller-core-cr.yaml
+  - kyverno-cleanup-controller-role.yaml
+  - kyverno-admission-controller-sa.yaml
+  - kyverno-rbac-admin-policies-cr.yaml
+  - kyverno-cleanup-controller-cr.yaml
+  - kyverno-reports-controller-rb.yaml
+  - kyverno-cleanup-jobs-sa.yaml
+  - kyverno-cleanup-controller-sa.yaml
+  - kyverno-background-controller-role.yaml
+  - kyverno-admission-controller-deployment.yaml
+  - kyverno-admission-controller-role.yaml
+  - kyverno-background-controller-crb.yaml
+  - kyverno-rbac-view-policies-cr.yaml
+  - kyverno-cleanup-jobs-crb.yaml
+  - kyverno-background-controller-sa.yaml
+  - kyverno-reports-controller-cr.yaml
+  - kyverno-reports-controller-role.yaml
+  - kyverno-cleanup-cluster-admission-reports-cronjob.yaml
+  - kyverno-rbac-view-policyreports-cr.yaml
+  - kyverno-cleanup-controller-deployment.yaml
+  - kyverno-cm.yaml
+  - kyverno-rbac-admin-reports-cr.yaml
+  - kyverno-reports-controller-metrics-service.yaml
+  - kyverno-cleanup-controller-rb.yaml
+  - kyverno-reports-controller-sa.yaml
+  - kyverno-svc-metrics-service.yaml
+  - kyverno-background-controller-rb.yaml
+  - kyverno-cleanup-ephemeral-reports-cronjob.yaml
+  - kyverno-background-controller-cr.yaml
+  - kyverno-cleanup-controller-metrics-service.yaml
+  - kyverno-cleanup-jobs-cr.yaml
+  - kyverno-background-controller-core-cr.yaml
+  - kyverno-cleanup-controller-crb.yaml
+  - kyverno-cleanup-cluster-ephemeral-reports-cronjob.yaml
+  - kyverno-cleanup-controller-core-cr.yaml

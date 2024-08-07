@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - clusterpolicyreports-wgpolicyk8s-io-crd.yaml
+  - admissionreports-kyverno-io-crd.yaml
+  - policies-kyverno-io-crd.yaml
+  - kyverno-namespace.yaml
+  - clustercleanuppolicies-kyverno-io-crd.yaml
+  - clusterbackgroundscanreports-kyverno-io-crd.yaml
+  - clusterephemeralreports-reports-kyverno-io-crd.yaml
+  - globalcontextentries-kyverno-io-crd.yaml
+  - clusterpolicies-kyverno-io-crd.yaml
+  - clusteradmissionreports-kyverno-io-crd.yaml
+  - policyreports-wgpolicyk8s-io-crd.yaml
+  - backgroundscanreports-kyverno-io-crd.yaml
+  - cleanuppolicies-kyverno-io-crd.yaml
+  - policyexceptions-kyverno-io-crd.yaml
+  - updaterequests-kyverno-io-crd.yaml
+  - ephemeralreports-reports-kyverno-io-crd.yaml
