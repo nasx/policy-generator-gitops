@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     app.kubernetes.io/component: crds
-    app.kubernetes.io/instance: kyverno
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: kyverno-crds
     app.kubernetes.io/version: 3.2.6
