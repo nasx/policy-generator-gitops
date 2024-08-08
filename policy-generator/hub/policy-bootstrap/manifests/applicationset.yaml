@@ -13,7 +13,8 @@ spec:
         revision: HEAD
         directories:
           - path: policy-generator/openshift
-          - path: policy-generator/prime
+          - path: policy-generator/openshift-aro
+          - path: policy-generator/applicationsets
   template:
     metadata:
       annotations:
