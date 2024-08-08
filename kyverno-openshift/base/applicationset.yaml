@@ -34,7 +34,6 @@ spec:
             valueFiles:
               - $values_source/kyverno-openshift/values/default.yaml
           repoURL: https://kyverno.github.io/kyverno/
-          repositoryType: helm
           targetRevision: 3.2.6
         - ref: values_source
           repoURL: https://github.com/nasx/policy-generator-gitops.git
