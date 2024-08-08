@@ -1,0 +1,5 @@
+apiVersion: v2
+description: Additional Kyverno Configuration for OpenShift
+name: kyverno-openshift-helper
+type: application
+version: 0.1.0
