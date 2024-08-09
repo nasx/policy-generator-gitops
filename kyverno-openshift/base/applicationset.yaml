@@ -33,6 +33,7 @@ spec:
           helm:
             valueFiles:
               - $values_source/kyverno-openshift/values/default.yaml
+              - $values_source/kyverno-openshift/values/resourcefilters.yaml
           repoURL: https://kyverno.github.io/kyverno/
           targetRevision: 3.2.6
         - ref: values_source

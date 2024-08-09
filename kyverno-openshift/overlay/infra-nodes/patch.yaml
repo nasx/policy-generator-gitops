@@ -1,5 +1,4 @@
 ---
 - op: replace
-  path: /spec/template/spec/sources/1/helm/valueFiles
-  value:
-    - $values_source/kyverno-openshift/values/infra-nodes.yaml
+  path: /spec/template/spec/sources/1/helm/valueFiles/0
+  value: "$values_source/kyverno-openshift/values/infra-nodes.yaml"
