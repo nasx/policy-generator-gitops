@@ -1,0 +1,38 @@
+- name: Get Nodes
+  kubernetes.core.k8s_info:
+    kind: Node
+    label_selectors: "{{ item.filter.labels | default([]) }}"
+  register: node_results
+  tags:
+    - nodes
+
+- name: Set Node List (With name_regex)
+  ansible.builtin.set_fact:
+    node_names: |-
+      {{
+        node_results.resources |
+          selectattr('metadata.name', 'match', item.filter.name_regex) |
+          map(attribute='metadata.name')
+      }}
+  tags:
+    - nodes
+  when:
+    - item.filter.name_regex
+
+- name: Set Node List
+  ansible.builtin.set_fact:
+    node_names: |-
+      {{
+        node_results.resources |
+          map(attribute='metadata.name')
+      }}
+  tags:
+    - nodes
+  when:
+    - not item.filter.name_regex
+
+- name: Update Node(s)
+  kubernetes.core.k8s:
+    template: templates/node.yaml.j2
+  tags:
+    - nodes

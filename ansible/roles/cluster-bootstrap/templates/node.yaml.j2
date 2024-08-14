@@ -1,0 +1,18 @@
+{% for node in node_names %}
+---
+apiVersion: v1
+kind: Node
+metadata:
+{% if item.add_labels is defined %}
+  labels:
+{% for label in item.add_labels %}
+    {{ label.key }}: {{ label.value | default("''") }}
+{% endfor %}
+{% endif %}
+  name: {{ node }}
+{% if item.add_taints is defined %}
+spec:
+  taints:
+{{ item.add_taints | to_yaml(default_flow_style=False) | indent(4, True) }}
+{% endif %}
+{% endfor %}

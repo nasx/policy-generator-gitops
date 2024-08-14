@@ -1,0 +1,24 @@
+- name: Apply Manifests
+  kubernetes.core.k8s:
+    definition: "{{ item.manifest }}"
+    state: present
+
+- name: Wait for Conditions
+  kubernetes.core.k8s_info:
+    api_version: "{{ condition.api_version }}"
+    kind: "{{ condition.kind }}"
+    name: "{{ condition.name }}"
+    namespace: "{{ condition.namespace }}"
+    wait: true
+    wait_condition:
+      status: "{{ condition.status }}"
+      type: "{{ condition.type }}"
+    wait_sleep: "{{ condition.wait_sleep | default(10) | int }}"
+    wait_timeout: "{{ condition.wait_timeout | default(600) | int }}"
+  loop: "{{ item.conditions }}"
+  loop_control:
+    loop_var: condition
+  tags:
+    - conditions
+  when:
+    - item.conditions is defined

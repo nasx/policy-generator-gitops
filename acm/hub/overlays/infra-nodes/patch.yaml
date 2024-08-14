@@ -1,0 +1,11 @@
+---
+- op: add
+  path: /spec/nodeSelector
+  value:
+    node-role.kubernetes.io/infra: ''
+- op: add
+  path: /spec/tolerations
+  value:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/infra
+      value: reserved

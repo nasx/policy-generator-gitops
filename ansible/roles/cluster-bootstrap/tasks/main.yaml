@@ -1,15 +1,32 @@
+- name: Apply Node Configuration
+  ansible.builtin.include_tasks:
+    file: node.yaml
+  loop: "{{ nodes }}"
+  tags:
+    - nodes
+  when:
+    - nodes is defined
+
 - name: Create Namespaces
   kubernetes.core.k8s:
     state: present
     template:
       path: templates/namespace.yaml.j2
   loop: "{{ namespaces }}"
+  tags:
+    - namespaces
+  when:
+    - namespaces is defined
 
 - name: Create Secrets
   kubernetes.core.k8s:
     state: present
     template: templates/secret.yaml.j2
   loop: "{{ secrets }}"
+  tags:
+    - secrets
+  when:
+    - secrets is defined
 
 - name: Deploy Operators
   kubernetes.core.k8s:
@@ -17,6 +34,10 @@
     template:
       path: templates/operator.yaml.j2
   loop: "{{ operators }}"
+  tags:
+    - operators
+  when:
+    - operators is defined
 
 - name: Wait for Subscription Status Update
   kubernetes.core.k8s_info:
@@ -28,6 +49,10 @@
   loop: "{{ operators }}"
   register: subscription_results
   retries: 60
+  tags:
+    - operators
+  when:
+    - operators is defined
   until:
     - subscription_results.resources is defined
     - subscription_results.resources[0].status is defined
@@ -38,6 +63,10 @@
 - name: Debug subscription_results
   ansible.builtin.debug:
     var: subscription_results
+  tags:
+    - operators
+  when:
+    - operators is defined
 
 - name: Approve Install Plans Requiring Manual Approval
   kubernetes.core.k8s:
@@ -51,7 +80,10 @@
     state: patched
   loop: "{{ subscription_results.results }}"
   register: approved_installplan_results
+  tags:
+    - operators
   when:
+    - operators is defined
     - item.resources[0].status.installPlanGeneration == 1
     - item.resources[0].status.state == "UpgradePending"
 
@@ -65,6 +97,8 @@
   loop: "{{ operators }}"
   register: csv_results
   retries: 60
+  tags:
+    - operators
   until:
     - csv_results.resources is defined
     - csv_results.resources[0] is defined
@@ -72,33 +106,47 @@
     - csv_results.resources[0].status.phase is defined
     - csv_results.resources[0].status.phase == "Succeeded"
   when:
+    - operators is defined
     - item.installPlanApproval == "Manual"
 
 - name: Deploy Sealed Secrets Controller
   ansible.builtin.include_role:
+    apply:
+      tags:
+        - sealed-secrets
     name: sealed-secrets
+  tags:
+    - sealed-secrets
   when:
     - sealed_secrets_keypair_crt is defined
     - sealed_secrets_keypair_key is defined
     - sealed_secrets_keypair_name is defined
     - sealed_secrets_namespace is defined
 
-- name: Apply Manifests
-  kubernetes.core.k8s:
-    definition: "{{ lookup('kubernetes.core.kustomize', dir=item.path) }}"
-    state: present
+- name: Apply Kustomized Manifests
+  ansible.builtin.include_tasks:
+    apply:
+      tags:
+        - kustomize
+    file: kustomize.yaml
   loop: "{{ manifests.kustomize }}"
+  tags:
+    - kustomize
+  vars:
+    kustomize_binary: "{{ manifests.kustomize_binary }}"
+  when:
+    - manifests is defined
+    - manifests.kustomize is defined
 
-- name: Wait for Conditions
-  kubernetes.core.k8s_info:
-    api_version: "{{ item.api_version }}"
-    kind: "{{ item.kind }}"
-    name: "{{ item.name }}"
-    namespace: "{{ item.namespace }}"
-    wait: true
-    wait_condition:
-      status: "{{ item.status }}"
-      type: "{{ item.type }}"
-    wait_sleep: "{{ item.wait_sleep | default(10) | int }}"
-    wait_timeout: "{{ item.wait_timeout | default(600) | int }}"
-  loop: "{{ conditions }}"
+- name: Apply Raw Manifests
+  ansible.builtin.include_tasks:
+    apply:
+      tags:
+        - raw
+    file: raw.yaml
+  loop: "{{ manifests.raw }}"
+  tags:
+    - raw
+  when:
+    - manifests is defined
+    - manifests.raw is defined

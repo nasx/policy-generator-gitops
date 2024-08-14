@@ -1,27 +1,56 @@
 ---
-conditions:
-  - api_version: operator.open-cluster-management.io/v1
-    kind: MultiClusterHub
-    name: multiclusterhub
-    namespace: open-cluster-management
-    status: 'True'
-    type: Complete
-  - api_version: cluster.open-cluster-management.io/v1beta2
-    kind: ManagedClusterSetBinding
-    name: global
-    namespace: hub-gitops
-    status: 'True'
-    type: Bound
 manifests:
   kustomize:
-    - path: ../acm/hub/base
+    - conditions:
+        - api_version: operator.open-cluster-management.io/v1
+          kind: MultiClusterHub
+          name: multiclusterhub
+          namespace: open-cluster-management
+          status: 'True'
+          type: Complete
+      path: ../acm/hub/overlays/infra-nodes
+  kustomize_binary: ~/bin/kustomize
+  raw:
+    - conditions:
+        - api_version: cluster.open-cluster-management.io/v1beta2
+          kind: ManagedClusterSetBinding
+          name: global
+          namespace: hub-gitops
+          status: 'True'
+          type: Bound
+      manifest: |
+        ---
+        apiVersion: cluster.open-cluster-management.io/v1beta2
+        kind: ManagedClusterSetBinding
+        metadata:
+          name: global
+          namespace: hub-gitops
+        spec:
+          clusterSet: global
 namespaces:
   - name: hub-gitops
   - labels:
       openshift.io/cluster-monitoring: 'true'
     name: open-cluster-management
+nodes:
+  - add_labels:
+      - key: cluster.ocs.openshift.io/openshift-storage
+    filter:
+      labels:
+        - beta.kubernetes.io/instance-type=vsphere-vm.cpu-12.mem-32gb.os-unknown
+      name_regex: "^odf[0-9]"
+  - add_labels:
+      - key: node-role.kubernetes.io/infra
+    add_taints:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/infra
+        value: reserved
+    filter:
+      labels:
+        - beta.kubernetes.io/instance-type=vsphere-vm.cpu-8.mem-32gb.os-unknown
+      name_regex: "^in[0-9]"
 operators:
-  - channel: release-2.10
+  - channel: release-2.11
     destinationNamespace: open-cluster-management
     installPlanApproval: Automatic
     name: advanced-cluster-management
